@@ -7,23 +7,24 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.util.Pair;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -33,7 +34,7 @@ public class rchecker extends Service {
     RequestQueue queue;
     JsonObjectRequest r;
     int timesReminded = 1;
-    String url = "http://76.14.25.135:8000/list";
+    String url = "http://76.14.25.135:8000";
 
     private ArrayList<String> getKeys(JSONObject jobj){
         Iterator<?> keysi = jobj.keys();
@@ -69,6 +70,28 @@ public class rchecker extends Service {
         return out;
     }
 
+    private void deleteR(final String rtext){
+        StringRequest delR = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String res) {
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getApplicationContext(), "error deleting reminder " + error.getMessage(), Toast.LENGTH_LONG);
+            }
+        }){
+            protected Map<String, String> getParams() throws com.android.volley.AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("remove", rtext);
+                return params;
+            }
+        };
+
+        queue.add(delR);
+    }
+
     private void remind(String rtext) {
         timesReminded++;
         NotificationCompat.Builder nBuilder = new NotificationCompat.Builder(this)
@@ -78,7 +101,7 @@ public class rchecker extends Service {
 
         NotificationManager nMan = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         nMan.notify(timesReminded, nBuilder.build());
-
+        deleteR(rtext);
         Log.i("CUSTOML", "notified");
     }
 
@@ -105,7 +128,7 @@ public class rchecker extends Service {
     public void onCreate() {
         super.onCreate();
         queue = Volley.newRequestQueue(this);
-        r = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+        r = new JsonObjectRequest(Request.Method.GET, url+"/list", null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject res) {
                 Log.i("CUSTOML", "got reminder list");
@@ -127,7 +150,7 @@ public class rchecker extends Service {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                Toast.makeText(getApplicationContext(), "error sending reminder " + error.getMessage(), Toast.LENGTH_LONG);
             }
         });
     }

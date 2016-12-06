@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     Response.ErrorListener errresl = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
-
+            Toast.makeText(MainActivity.this, "error sending reminder " + error.getMessage(), Toast.LENGTH_LONG);
         }
     };
 
