@@ -3,10 +3,10 @@ package jinnycorp.reminderapp;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.util.Pair;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -95,9 +95,10 @@ public class rchecker extends Service {
     private void remind(String rtext) {
         timesReminded++;
         NotificationCompat.Builder nBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.list)
-                .setContentTitle("reminder")
-                .setContentText(rtext);
+            .setSmallIcon(R.drawable.list)
+            .setContentTitle("reminder")
+            .setContentText(rtext)
+            .setVibrate(new long[]{0,1000});
 
         NotificationManager nMan = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         nMan.notify(timesReminded, nBuilder.build());
@@ -105,11 +106,7 @@ public class rchecker extends Service {
         Log.i("CUSTOML", "notified");
     }
 
-    public rchecker() {
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    private void start(){
         ScheduledExecutorService s = Executors.newScheduledThreadPool(1);
         Log.i("CUSTOML", "checker started");
 
@@ -121,6 +118,14 @@ public class rchecker extends Service {
         };
 
         s.scheduleAtFixedRate(check, 0, 30, TimeUnit.SECONDS);
+    }
+
+    public rchecker() {
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        start();
         return Service.START_NOT_STICKY;
     }
 
@@ -158,6 +163,15 @@ public class rchecker extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
+        start();
+        IBinder b = new MyBinder();
+        return b;
+
+    }
+
+    class MyBinder extends Binder {
+        rchecker getService(){
+            return rchecker.this;
+        }
     }
 }
