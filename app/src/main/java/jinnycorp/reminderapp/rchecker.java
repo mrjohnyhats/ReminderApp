@@ -79,7 +79,7 @@ public class rchecker extends Service {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "error deleting reminder " + error.getMessage(), Toast.LENGTH_LONG);
+                Toast.makeText(getApplicationContext(), "error deleting reminder " + error.getMessage(), Toast.LENGTH_LONG).show();
             }
         }){
             protected Map<String, String> getParams() throws com.android.volley.AuthFailureError {
@@ -150,7 +150,7 @@ public class rchecker extends Service {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "error sending reminder " + error.getMessage(), Toast.LENGTH_LONG);
+                Toast.makeText(getApplicationContext(), "error sending reminder " + error.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }

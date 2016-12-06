@@ -39,14 +39,14 @@ public class MainActivity extends AppCompatActivity {
     String url = "http://76.14.25.135:8000";
     Response.Listener<String> resl = new Response.Listener<String>() {
         @Override
-        public void onResponse(String response) {
-
+        public void onResponse(String res) {
+            Toast.makeText(MainActivity.this, "reminder sent!", Toast.LENGTH_SHORT).show();
         }
     };
     Response.ErrorListener errresl = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
-            Toast.makeText(MainActivity.this, "error sending reminder " + error.getMessage(), Toast.LENGTH_LONG);
+            Toast.makeText(MainActivity.this, "error sending reminder " + error.getMessage(), Toast.LENGTH_LONG).show();
         }
     };
 
@@ -102,7 +102,16 @@ public class MainActivity extends AppCompatActivity {
         rinput = (EditText) findViewById(R.id.rinput);
 
         if(!checkerRunning()){
-            startService(new Intent(this, rchecker.class));
+            Thread t = new Thread(){
+                public void run(){
+                    getApplicationContext().bindService(
+                            new Intent(getApplicationContext(), rchecker.class),
+                            serviceConnection,
+                            Context.BIND_AUTO_CREATE
+                    );
+                }
+            };
+            t.start();
             Log.i("CUSTOML", "starting checker from app");
         }
 
@@ -120,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
                     };
                     queue.add(r);
                 } else {
-                    Toast.makeText(MainActivity.this, "please enter date and time before sending", Toast.LENGTH_SHORT);
+                    Toast.makeText(MainActivity.this, "please enter date and time before sending", Toast.LENGTH_SHORT).show();
                 }
             }
         });
